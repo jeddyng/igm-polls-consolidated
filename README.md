@@ -2,6 +2,8 @@
 
 A self-updating static site that scrapes all [IGM/Clark Center](https://kentclarkcenter.org/) economist expert polls and displays consensus data with interactive charts.
 
+Page is live at https://jeddyng.github.io/igm-polls-consolidated/
+
 ## Features
 
 - **552+ surveys, 1100+ questions** from the US, European, and Finance expert panels
