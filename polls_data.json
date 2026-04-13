@@ -28409,5 +28409,55 @@
         }
       }
     ]
+  },
+  {
+    "title": "European Preference",
+    "url": "https://kentclarkcenter.org/surveys/european-preference/",
+    "date": "April 10, 2026",
+    "panel": "Europe",
+    "questions": [
+      {
+        "label": "Question A",
+        "text": "In a world in which most economic powers have programmes that give preference to their own strategic resources \u2013 for example, the Chinese have \u2018Made in China\u2019, and the Americans have \u2018Buy American\u2019 \u2013 the EU\u2019s strategic independence would be substantially enhanced by establishing some form of European preference in public procurement in selected sectors.",
+        "consensus": {
+          "sa": 5,
+          "a": 15,
+          "u": 14,
+          "d": 5,
+          "sd": 0,
+          "no": 0,
+          "dna": 10,
+          "total": 49,
+          "p_sa": 12.8,
+          "p_a": 38.5,
+          "p_u": 35.9,
+          "p_d": 12.8,
+          "p_sd": 0.0,
+          "p_no": 0.0,
+          "maj": "Agree"
+        }
+      },
+      {
+        "label": "Question B",
+        "text": "A \u2018Buy European\u2019 programme of public procurement in selected sectors could be implemented in a way that would deliver greater EU innovation and growth over the next five years than in the absence of such a programme.",
+        "consensus": {
+          "sa": 2,
+          "a": 16,
+          "u": 13,
+          "d": 7,
+          "sd": 1,
+          "no": 0,
+          "dna": 10,
+          "total": 49,
+          "p_sa": 5.1,
+          "p_a": 41.0,
+          "p_u": 33.3,
+          "p_d": 17.9,
+          "p_sd": 2.6,
+          "p_no": 0.0,
+          "maj": "Mixed"
+        }
+      }
+    ]
   }
 ]
