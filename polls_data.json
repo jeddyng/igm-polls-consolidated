@@ -28459,5 +28459,55 @@
         }
       }
     ]
+  },
+  {
+    "title": "Science Funding",
+    "url": "https://kentclarkcenter.org/surveys/science-funding/",
+    "date": "April 15, 2026",
+    "panel": "US",
+    "questions": [
+      {
+        "label": "Question A",
+        "text": "Independent of any other cuts to public funding of scientific research, a 55% reduction in the budget for the National Science Foundation would have no measurable effect on the well-being of the typical American over the next 10 years.",
+        "consensus": {
+          "sa": 0,
+          "a": 2,
+          "u": 8,
+          "d": 21,
+          "sd": 9,
+          "no": 1,
+          "dna": 4,
+          "total": 45,
+          "p_sa": 0.0,
+          "p_a": 4.9,
+          "p_u": 19.5,
+          "p_d": 51.2,
+          "p_sd": 22.0,
+          "p_no": 2.4,
+          "maj": "Disagree"
+        }
+      },
+      {
+        "label": "Question B",
+        "text": "Historical federal support for scientific research has paid for itself through a substantial positive effect on long-run US productivity growth.",
+        "consensus": {
+          "sa": 26,
+          "a": 11,
+          "u": 3,
+          "d": 0,
+          "sd": 0,
+          "no": 1,
+          "dna": 4,
+          "total": 45,
+          "p_sa": 63.4,
+          "p_a": 26.8,
+          "p_u": 7.3,
+          "p_d": 0.0,
+          "p_sd": 0.0,
+          "p_no": 2.4,
+          "maj": "Agree"
+        }
+      }
+    ]
   }
 ]
