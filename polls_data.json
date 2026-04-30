@@ -28509,5 +28509,55 @@
         }
       }
     ]
+  },
+  {
+    "title": "Prediction Markets",
+    "url": "https://kentclarkcenter.org/surveys/prediction-markets/",
+    "date": "April 29, 2026",
+    "panel": "Finance",
+    "questions": [
+      {
+        "label": "Question A",
+        "text": "Prediction markets provide substantially more accurate forecasts of key macro-financial variables than traditional sources such as surveys of professional forecasters.",
+        "consensus": {
+          "sa": 1,
+          "a": 11,
+          "u": 17,
+          "d": 6,
+          "sd": 2,
+          "no": 2,
+          "dna": 3,
+          "total": 42,
+          "p_sa": 2.6,
+          "p_a": 28.2,
+          "p_u": 43.6,
+          "p_d": 15.4,
+          "p_sd": 5.1,
+          "p_no": 5.1,
+          "maj": "Uncertain"
+        }
+      },
+      {
+        "label": "Question B",
+        "text": "Retail market participants would be measurably better off if sports contracts on prediction markets were regulated more like gambling than like financial derivatives.",
+        "consensus": {
+          "sa": 6,
+          "a": 13,
+          "u": 12,
+          "d": 4,
+          "sd": 2,
+          "no": 2,
+          "dna": 3,
+          "total": 42,
+          "p_sa": 15.4,
+          "p_a": 33.3,
+          "p_u": 30.8,
+          "p_d": 10.3,
+          "p_sd": 5.1,
+          "p_no": 5.1,
+          "maj": "Mixed"
+        }
+      }
+    ]
   }
 ]
