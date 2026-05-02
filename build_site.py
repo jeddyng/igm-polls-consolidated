@@ -2,6 +2,12 @@
 """
 Build the static HTML site from polls_data.json.
 Outputs to docs/index.html for GitHub Pages.
+
+Note: consensus labels (maj) are recomputed at page-load time by JS
+using an 8-tier system grounded in Delphi-method conventions
+(70% threshold for "Strong" consensus, per Diamond et al. 2014 systematic
+review; "Lean" tier captures clear directional plurality below 50%).
+The `maj` field stored in polls_data.json is ignored by the renderer.
 """
 
 import json
@@ -171,10 +177,15 @@ select.ctrl-select:focus { outline:none; border-color:var(--accent); }
   display:inline-block; padding:0.15rem 0.5rem; border-radius:4px;
   font-size:0.7rem; font-weight:700; margin-left:0.5rem; vertical-align:middle;
 }
-.consensus-agree { background:#d4edda; color:#2d7d46; }
-.consensus-disagree { background:#f8d7da; color:#c0392b; }
+.consensus-strong-agree { background:#1a5c2e; color:#fff; }
+.consensus-agree { background:#d4edda; color:#1a5c2e; }
+.consensus-lean-agree { background:#eaf6ed; color:#2d7d46; }
+.consensus-lean-disagree { background:#fdecea; color:#c0392b; }
+.consensus-disagree { background:#f8d7da; color:#8b1a1a; }
+.consensus-strong-disagree { background:#8b1a1a; color:#fff; }
 .consensus-uncertain { background:#fff3cd; color:#856404; }
 .consensus-mixed { background:#e2e8f0; color:#475569; }
+.consensus-na { background:#f0f0f0; color:#888; }
 
 .respondents { font-size:0.7rem; color:var(--text2); margin-top:0.3rem; }
 
@@ -201,6 +212,11 @@ select.ctrl-select:focus { outline:none; border-color:var(--accent); }
   margin:2rem 0 0.5rem; border-bottom:2px solid var(--border); padding-bottom:0.5rem;
 }
 .insights-wrap h2:first-child { margin-top:0; }
+.methodology-note {
+  background:var(--card); border:1px solid var(--border); border-radius:8px;
+  padding:1rem 1.25rem; margin:1rem 0 2rem; font-size:0.82rem; color:var(--text2);
+}
+.methodology-note strong { color:var(--text); }
 
 .insight-card {
   background:var(--card); border-radius:10px; border:1px solid var(--border);
@@ -297,6 +313,54 @@ const DATA = '''
         + data_json
         + r''';
 
+// ============================================================
+// CONSENSUS LABELING (recomputed from raw counts)
+// ============================================================
+// Denominator excludes both "Did Not Answer" (DNA) and "No Opinion" (NO),
+// so percentages reflect economists who took a substantive position.
+//
+// 8-tier system, grounded in Delphi-method conventions:
+//   - Diamond et al. 2014 systematic review: 75% is the median consensus
+//     threshold across Delphi studies; range 50-97%.
+//   - Common tiering: ≥80% "consensus", ≥70% "majority".
+//   - "Lean" tier captures clear directional plurality below 50%
+//     (avoids dumping clear-lean polls into "Mixed").
+//
+// Rules (in priority order):
+//   ag ≥ 70                          -> "Strong Agree"
+//   ag ≥ 50                          -> "Agree"
+//   ag ≥ 40 AND (ag - dg) ≥ 20       -> "Lean Agree"
+//   dg ≥ 70                          -> "Strong Disagree"
+//   dg ≥ 50                          -> "Disagree"
+//   dg ≥ 40 AND (dg - ag) ≥ 20       -> "Lean Disagree"
+//   u ≥ 40 AND u > ag AND u > dg     -> "Uncertain"
+//   otherwise                        -> "Mixed"
+
+function computeMaj(c) {
+  if (!c || !c.total) return 'N/A';
+  const active = (c.total || 0) - (c.dna || 0) - (c.no || 0);
+  if (active <= 0) return 'N/A';
+  const ag = 100 * ((c.sa || 0) + (c.a || 0)) / active;
+  const dg = 100 * ((c.sd || 0) + (c.d || 0)) / active;
+  const u  = 100 * (c.u || 0) / active;
+
+  if (ag >= 70) return 'Strong Agree';
+  if (dg >= 70) return 'Strong Disagree';
+  if (ag >= 50) return 'Agree';
+  if (dg >= 50) return 'Disagree';
+  if (ag >= 40 && (ag - dg) >= 20) return 'Lean Agree';
+  if (dg >= 40 && (dg - ag) >= 20) return 'Lean Disagree';
+  if (u  >= 40 && u > ag && u > dg) return 'Uncertain';
+  return 'Mixed';
+}
+
+// Recompute maj for every question on load.
+DATA.forEach(d => d.questions.forEach(q => {
+  if (q.consensus) q.consensus.maj = computeMaj(q.consensus);
+}));
+
+// ============================================================
+
 function parseDate(s) {
   if (!s) return new Date(2000,0,1);
   try { return new Date(s); } catch { return new Date(2000,0,1); }
@@ -331,12 +395,32 @@ function archiveLinksInline(url) {
   const ai='https://archive.is/newest/'+encodeURIComponent(url);
   return `<div class="ic-archive"><a href="${url}" target="_blank">Original</a><a href="${wa}" target="_blank">Web Archive</a><a href="${ai}" target="_blank">Archive.is</a></div>`;
 }
+
+const TAG_CLASS = {
+  'Strong Agree':'strong-agree', 'Agree':'agree', 'Lean Agree':'lean-agree',
+  'Lean Disagree':'lean-disagree', 'Disagree':'disagree', 'Strong Disagree':'strong-disagree',
+  'Uncertain':'uncertain', 'Mixed':'mixed', 'N/A':'na',
+};
+const TAG_ICON = {
+  'Strong Agree':'✓✓', 'Agree':'✓', 'Lean Agree':'↗',
+  'Lean Disagree':'↘', 'Disagree':'✗', 'Strong Disagree':'✗✗',
+  'Uncertain':'?', 'Mixed':'◎', 'N/A':'—',
+};
+
 function consensusTag(maj) {
-  const cls={Agree:'agree',Disagree:'disagree',Uncertain:'uncertain',Mixed:'mixed'}[maj]||'mixed';
-  const icon={Agree:'✓',Disagree:'✗',Uncertain:'?',Mixed:'◎'}[maj]||'?';
+  const cls = TAG_CLASS[maj] || 'mixed';
+  const icon = TAG_ICON[maj] || '?';
   return `<span class="consensus-tag consensus-${cls}">${icon} ${maj}</span>`;
 }
 function badgeClass(p){return{US:'badge-us',Europe:'badge-europe',Finance:'badge-finance'}[p]||'badge-us';}
+
+// Bucket a question into one of: agree-side, disagree-side, mixed-side
+function majBucket(maj) {
+  if (maj === 'Strong Agree' || maj === 'Agree' || maj === 'Lean Agree') return 'agree';
+  if (maj === 'Strong Disagree' || maj === 'Disagree' || maj === 'Lean Disagree') return 'disagree';
+  if (maj === 'Uncertain' || maj === 'Mixed') return 'mixed';
+  return 'other';
+}
 
 function renderBar(c) {
   if(!c)return'';
@@ -368,9 +452,9 @@ function filtered(){
     if(searchTerm){const s=searchTerm.toLowerCase();const h=(d.title+' '+d.questions.map(q=>q.text).join(' ')).toLowerCase();if(!h.includes(s))return false;}
     if(currentFilter==='all')return true;
     if(['US','Europe','Finance'].includes(currentFilter))return d.panel===currentFilter;
-    if(currentFilter==='agree')return d.questions.some(q=>q.consensus&&q.consensus.maj==='Agree');
-    if(currentFilter==='disagree')return d.questions.some(q=>q.consensus&&q.consensus.maj==='Disagree');
-    if(currentFilter==='mixed')return d.questions.some(q=>q.consensus&&(q.consensus.maj==='Mixed'||q.consensus.maj==='Uncertain'));
+    if(currentFilter==='agree')   return d.questions.some(q=>q.consensus && majBucket(q.consensus.maj)==='agree');
+    if(currentFilter==='disagree')return d.questions.some(q=>q.consensus && majBucket(q.consensus.maj)==='disagree');
+    if(currentFilter==='mixed')   return d.questions.some(q=>q.consensus && majBucket(q.consensus.maj)==='mixed');
     return true;
   });
 }
@@ -419,26 +503,34 @@ let insightsBuilt=false;
 function buildInsights(){
   insightsBuilt=true;
 
-  // Flatten all questions
+  // Flatten all questions, recomputing percentages on the corrected
+  // denominator (active = total - DNA - NO).
   const allQ=[];
   DATA.forEach(d=>{
     d.questions.forEach(q=>{
       if(!q.consensus)return;
       const c=q.consensus;
+      const active = (c.total||0) - (c.dna||0) - (c.no||0);
+      const agPct = active > 0 ? 100*((c.sa||0)+(c.a||0))/active : 0;
+      const dgPct = active > 0 ? 100*((c.sd||0)+(c.d||0))/active : 0;
+      const uPct  = active > 0 ? 100*(c.u||0)/active : 0;
       allQ.push({
         title:d.title, url:d.url, date:d.date, panel:d.panel,
         label:q.label, text:q.text, consensus:c,
-        agPct:(c.p_sa||0)+(c.p_a||0),
-        dgPct:(c.p_sd||0)+(c.p_d||0),
-        uPct:c.p_u||0,
+        agPct, dgPct, uPct,
       });
     });
   });
 
-  const majCounts={Agree:0,Disagree:0,Uncertain:0,Mixed:0,'N/A':0};
+  // Counts across all 8 buckets for the summary.
+  const majCounts={};
+  ['Strong Agree','Agree','Lean Agree','Lean Disagree','Disagree','Strong Disagree','Uncertain','Mixed','N/A'].forEach(k=>majCounts[k]=0);
   allQ.forEach(q=>{majCounts[q.consensus.maj]=(majCounts[q.consensus.maj]||0)+1;});
   const panelCounts={};
   DATA.forEach(d=>{panelCounts[d.panel]=(panelCounts[d.panel]||0)+1;});
+
+  const totalAgreeSide    = majCounts['Strong Agree'] + majCounts['Agree'] + majCounts['Lean Agree'];
+  const totalDisagreeSide = majCounts['Strong Disagree'] + majCounts['Disagree'] + majCounts['Lean Disagree'];
 
   // Sort into categories
   const topAgree=[...allQ].sort((a,b)=>b.agPct-a.agPct);
@@ -455,7 +547,7 @@ function buildInsights(){
     const segs=[{k:'sa',p:c.p_sa},{k:'a',p:c.p_a},{k:'u',p:c.p_u},{k:'d',p:c.p_d},{k:'sd',p:c.p_sd},{k:'no',p:c.p_no}].filter(s=>s.p>0);
     const bar=segs.map(s=>`<div class="bar-seg ${s.k}" style="flex:${s.p};height:20px">${s.p>=10?s.p+'%':''}</div>`).join('');
     return `<div class="insight-card">
-      <div class="ic-pct ${pctClass}">${pctText}</div>
+      <div class="ic-pct ${pctClass}">${pctText} ${consensusTag(c.maj)}</div>
       <div class="ic-title"><a href="${q.url}" target="_blank">${q.title}</a>${q.label?' — '+q.label:''}</div>
       <div class="ic-meta">${q.panel} · ${q.date||'Unknown date'}</div>
       <div class="q-text" style="font-size:0.82rem;margin-bottom:0.5rem">${q.text||''}</div>
@@ -480,11 +572,26 @@ function buildInsights(){
 
   // Build skeleton
   document.getElementById('insights-content').innerHTML = `
+    <div class="methodology-note">
+      <strong>Methodology:</strong> Consensus labels use an 8-tier system grounded in Delphi-method conventions
+      (Diamond et al. 2014 systematic review found 75% as the median consensus threshold; range 50–97%).
+      Percentages are calculated on respondents who took a position, excluding "No Opinion" and "Did Not Answer."
+      Thresholds: <strong>Strong</strong> ≥70%, <strong>standard</strong> ≥50%, <strong>Lean</strong> ≥40% with a 20-point gap.
+    </div>
+
     <div class="summary-bars">
-      <div class="summary-bar-card"><div class="sb-num" style="color:var(--a)">${majCounts.Agree}</div><div class="sb-label">Consensus Agree</div></div>
-      <div class="summary-bar-card"><div class="sb-num" style="color:var(--d)">${majCounts.Disagree}</div><div class="sb-label">Consensus Disagree</div></div>
-      <div class="summary-bar-card"><div class="sb-num" style="color:var(--u)">${majCounts.Uncertain}</div><div class="sb-label">Uncertain</div></div>
-      <div class="summary-bar-card"><div class="sb-num" style="color:#7f8c8d">${majCounts.Mixed}</div><div class="sb-label">Mixed / Divided</div></div>
+      <div class="summary-bar-card"><div class="sb-num" style="color:var(--a)">${totalAgreeSide}</div><div class="sb-label">Agreement (any)</div></div>
+      <div class="summary-bar-card"><div class="sb-num" style="color:var(--d)">${totalDisagreeSide}</div><div class="sb-label">Disagreement (any)</div></div>
+      <div class="summary-bar-card"><div class="sb-num" style="color:var(--u)">${majCounts['Uncertain']}</div><div class="sb-label">Uncertain</div></div>
+      <div class="summary-bar-card"><div class="sb-num" style="color:#7f8c8d">${majCounts['Mixed']}</div><div class="sb-label">Mixed / Divided</div></div>
+    </div>
+    <div class="summary-bars">
+      <div class="summary-bar-card"><div class="sb-num" style="color:var(--sa)">${majCounts['Strong Agree']}</div><div class="sb-label">Strong Agree (≥70%)</div></div>
+      <div class="summary-bar-card"><div class="sb-num" style="color:var(--a)">${majCounts['Agree']}</div><div class="sb-label">Agree (≥50%)</div></div>
+      <div class="summary-bar-card"><div class="sb-num" style="color:#5fa974">${majCounts['Lean Agree']}</div><div class="sb-label">Lean Agree</div></div>
+      <div class="summary-bar-card"><div class="sb-num" style="color:#d97a6c">${majCounts['Lean Disagree']}</div><div class="sb-label">Lean Disagree</div></div>
+      <div class="summary-bar-card"><div class="sb-num" style="color:var(--d)">${majCounts['Disagree']}</div><div class="sb-label">Disagree (≥50%)</div></div>
+      <div class="summary-bar-card"><div class="sb-num" style="color:var(--sd)">${majCounts['Strong Disagree']}</div><div class="sb-label">Strong Disagree (≥70%)</div></div>
     </div>
     <div class="summary-bars">
       <div class="summary-bar-card"><div class="sb-num">${panelCounts['US']||0}</div><div class="sb-label">US Polls</div></div>
