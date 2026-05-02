@@ -8,29 +8,89 @@ import requests
 import re
 import json
 import time
+import random
 import os
 from bs4 import BeautifulSoup
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+# Browser-like headers to get past Cloudflare/WAF on datacenter IPs.
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'text/html',
+    'User-Agent': (
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+        '(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+    ),
+    'Accept': (
+        'text/html,application/xhtml+xml,application/xml;q=0.9,'
+        'image/avif,image/webp,image/apng,*/*;q=0.8'
+    ),
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Sec-Fetch-User': '?1',
+    'Cache-Control': 'max-age=0',
 }
+
 VALID_VOTES = {
     'Strongly Agree', 'Agree', 'Uncertain', 'Disagree',
     'Strongly Disagree', 'No Opinion', 'Did Not Answer',
 }
 DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'polls_data.json')
 
+# Single shared Session so cookies (incl. Cloudflare clearance) persist.
+SESSION = requests.Session()
+SESSION.headers.update(HEADERS)
+
+# Pacing knobs — keep things slow and human-ish.
+WARMUP_DELAY = (2.0, 4.0)         # before first real request
+INTER_REQUEST_DELAY = (1.5, 3.5)  # between successful per-survey fetches
+RETRY_BACKOFF = [5, 15, 30, 60]   # seconds; one entry per retry attempt
+MAX_WORKERS = 2                   # was 10 — be gentle
+
+
+def polite_sleep(low_high):
+    low, high = low_high
+    time.sleep(random.uniform(low, high))
+
+
+def fetch_with_retries(url, timeout=30, attempts=4):
+    """GET with retries and backoff. Returns Response or raises last error."""
+    last_exc = None
+    for i in range(attempts):
+        try:
+            r = SESSION.get(url, timeout=timeout)
+            # Treat 403/429/5xx as retryable.
+            if r.status_code in (403, 429) or 500 <= r.status_code < 600:
+                raise requests.HTTPError(f'{r.status_code} for {url}', response=r)
+            r.raise_for_status()
+            return r
+        except Exception as e:
+            last_exc = e
+            if i < attempts - 1:
+                wait = RETRY_BACKOFF[min(i, len(RETRY_BACKOFF) - 1)]
+                # Add jitter so retries don't sync up.
+                wait += random.uniform(0, wait * 0.3)
+                print(f'  retry {i+1}/{attempts-1} for {url} after {wait:.1f}s ({e})')
+                time.sleep(wait)
+    raise last_exc
+
+
+def warmup():
+    """Hit the homepage first so Cloudflare can set a clearance cookie."""
+    try:
+        SESSION.get('https://kentclarkcenter.org/', timeout=30)
+    except Exception as e:
+        print(f'warmup failed (continuing anyway): {e}')
+    polite_sleep(WARMUP_DELAY)
+
 
 def get_sitemap_urls():
     """Fetch all survey URLs from the WordPress sitemap."""
-    r = requests.get(
-        'https://kentclarkcenter.org/survey-sitemap.xml',
-        headers=HEADERS, timeout=30,
-    )
-    r.raise_for_status()
+    r = fetch_with_retries('https://kentclarkcenter.org/survey-sitemap.xml')
     return set(re.findall(
         r'<loc>(https://kentclarkcenter\.org/surveys/[^<]+)</loc>', r.text
     ))
@@ -83,12 +143,14 @@ def extract_votes_from_table(table):
 def parse_survey(url):
     """Parse a single survey page. Returns dict or None."""
     try:
-        r = requests.get(url, headers=HEADERS, timeout=20)
-        if r.status_code != 200:
-            return None
+        r = fetch_with_retries(url, timeout=20, attempts=3)
         soup = BeautifulSoup(r.text, 'html.parser')
-    except Exception:
+    except Exception as e:
+        print(f'  fetch failed for {url}: {e}')
         return None
+    finally:
+        # Slow down regardless of success/failure.
+        polite_sleep(INTER_REQUEST_DELAY)
 
     h1 = soup.find('h1')
     title = h1.get_text(strip=True) if h1 else 'Unknown'
@@ -152,7 +214,6 @@ def parse_survey(url):
             continue
         votes = extract_votes_from_table(table)
         if votes:
-            # Find matching question text
             letter_match = re.match(r'Question\s+([A-Z])', m_label)
             qtext = ''
             if letter_match:
@@ -210,6 +271,10 @@ def main():
     existing_urls = {d['url'] for d in existing}
     print(f'Existing surveys: {len(existing)}')
 
+    # Warm up the session against Cloudflare.
+    print('Warming up session...')
+    warmup()
+
     # Get all URLs from sitemap
     all_urls = get_sitemap_urls()
     print(f'Sitemap URLs: {len(all_urls)}')
@@ -221,9 +286,9 @@ def main():
 
     print(f'New surveys to scrape: {len(new_urls)}')
 
-    # Scrape new surveys
+    # Scrape new surveys — small worker pool, polite delays inside parse_survey.
     results = []
-    with ThreadPoolExecutor(max_workers=10) as ex:
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as ex:
         futs = {ex.submit(parse_survey, u): u for u in new_urls}
         for f in as_completed(futs):
             r = f.result()
