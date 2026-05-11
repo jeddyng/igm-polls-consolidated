@@ -28559,5 +28559,147 @@
         }
       }
     ]
+  },
+  {
+    "title": "European Merger Rules",
+    "url": "https://kentclarkcenter.org/surveys/european-merger-rules/",
+    "date": "May 4, 2026",
+    "panel": "Europe",
+    "questions": [
+      {
+        "label": "Question A",
+        "text": "The EU's rules on corporate mergers have been a substantial constraint on productivity growth in Europe.",
+        "consensus": {
+          "sa": 0,
+          "a": 8,
+          "u": 17,
+          "d": 12,
+          "sd": 1,
+          "no": 2,
+          "dna": 9,
+          "total": 49,
+          "p_sa": 0.0,
+          "p_a": 20.0,
+          "p_u": 42.5,
+          "p_d": 30.0,
+          "p_sd": 2.5,
+          "p_no": 5.0,
+          "maj": "Uncertain"
+        }
+      },
+      {
+        "label": "Question B",
+        "text": "Loosening the EU\u2019s rules on corporate mergers would provide a substantial boost to the emergence of European champions able to compete effectively in the global economy.",
+        "consensus": {
+          "sa": 1,
+          "a": 10,
+          "u": 20,
+          "d": 4,
+          "sd": 3,
+          "no": 2,
+          "dna": 9,
+          "total": 49,
+          "p_sa": 2.5,
+          "p_a": 25.0,
+          "p_u": 50.0,
+          "p_d": 10.0,
+          "p_sd": 7.5,
+          "p_no": 5.0,
+          "maj": "Uncertain"
+        }
+      },
+      {
+        "label": "Question C",
+        "text": "In terms of promoting stronger European economic growth, looser merger rules would be substantially less effective than completing the single market, including the creation of a \u201828th regime\u2019 of corporate rules.",
+        "consensus": {
+          "sa": 12,
+          "a": 20,
+          "u": 6,
+          "d": 0,
+          "sd": 0,
+          "no": 2,
+          "dna": 9,
+          "total": 49,
+          "p_sa": 30.0,
+          "p_a": 50.0,
+          "p_u": 15.0,
+          "p_d": 0.0,
+          "p_sd": 0.0,
+          "p_no": 5.0,
+          "maj": "Agree"
+        }
+      }
+    ]
+  },
+  {
+    "title": "Pied-a-Terre Tax",
+    "url": "https://kentclarkcenter.org/surveys/pied-a-terre-tax/",
+    "date": "May 4, 2026",
+    "panel": "US",
+    "questions": [
+      {
+        "label": "Question A",
+        "text": "The New York governor has proposed a pied-\u00e0-terre tax to support the New York City mayor\u2019s efforts to close the city\u2019s budget gap:https://www.governor.ny.gov/news/governor-hochul-announces-pied-terre-tax-proposal-luxury-second-homes-valued-5-million-or-moreDetails are starting to emerge:https://www.nytimes.com/2026/04/17/nyregion/second-home-tax.htmlIn the meantime, consider a tax that starts at 0.5% of assessed value over $5 million and rises to 4% of assessed value over $25 million, as in this 2019 proposal:https://www.nysenate.gov/legislation/bills/2019/S44/amendment/originalAn annual property tax surcharge on second homes in New York City valued at $5 million or more would raise annual revenues of at least $500 million for the city over the next five years.",
+        "consensus": {
+          "sa": 0,
+          "a": 6,
+          "u": 19,
+          "d": 5,
+          "sd": 0,
+          "no": 5,
+          "dna": 10,
+          "total": 45,
+          "p_sa": 0.0,
+          "p_a": 17.1,
+          "p_u": 54.3,
+          "p_d": 14.3,
+          "p_sd": 0.0,
+          "p_no": 14.3,
+          "maj": "Uncertain"
+        }
+      },
+      {
+        "label": "Question B",
+        "text": "An annual property tax surcharge on second homes in New York City valued at $5 million or more would lead to a substantial exodus of businesses and high-net-worth individuals from the city over the next five years.",
+        "consensus": {
+          "sa": 0,
+          "a": 4,
+          "u": 9,
+          "d": 19,
+          "sd": 1,
+          "no": 2,
+          "dna": 10,
+          "total": 45,
+          "p_sa": 0.0,
+          "p_a": 11.4,
+          "p_u": 25.7,
+          "p_d": 54.3,
+          "p_sd": 2.9,
+          "p_no": 5.7,
+          "maj": "Disagree"
+        }
+      },
+      {
+        "label": "Question C",
+        "text": "An annual property tax surcharge on second homes in New York City valued at $5 million or more would make housing substantially more affordable for ordinary New Yorkers over the next five years.",
+        "consensus": {
+          "sa": 0,
+          "a": 0,
+          "u": 2,
+          "d": 21,
+          "sd": 10,
+          "no": 2,
+          "dna": 10,
+          "total": 45,
+          "p_sa": 0.0,
+          "p_a": 0.0,
+          "p_u": 5.7,
+          "p_d": 60.0,
+          "p_sd": 28.6,
+          "p_no": 5.7,
+          "maj": "Disagree"
+        }
+      }
+    ]
   }
 ]
