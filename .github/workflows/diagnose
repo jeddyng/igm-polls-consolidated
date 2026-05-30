@@ -1,0 +1,24 @@
+name: Diagnose site access
+
+# Adds a manual "Run workflow" button under the Actions tab.
+# It does nothing but print what GitHub Actions can reach. Safe to add.
+on:
+  workflow_dispatch:
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install requests
+        run: pip install requests
+
+      - name: Run diagnostic
+        run: python diagnose.py
