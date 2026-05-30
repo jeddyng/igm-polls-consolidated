@@ -28701,5 +28701,197 @@
         }
       }
     ]
+  },
+  {
+    "title": "America Versus Europe",
+    "url": "https://kentclarkcenter.org/surveys/america-versus-europe/",
+    "date": "May 22, 2026",
+    "panel": "Europe",
+    "questions": [
+      {
+        "label": "Question A",
+        "text": "Over the past 25 years, the income of the median European citizen has declined substantially relative to the income of the median American citizen.",
+        "consensus": {
+          "sa": 5,
+          "a": 14,
+          "u": 9,
+          "d": 12,
+          "sd": 1,
+          "no": 0,
+          "dna": 8,
+          "total": 49,
+          "p_sa": 12.2,
+          "p_a": 34.1,
+          "p_u": 22.0,
+          "p_d": 29.3,
+          "p_sd": 2.4,
+          "p_no": 0.0,
+          "maj": "Mixed"
+        }
+      },
+      {
+        "label": "Question B",
+        "text": "The living standards of the median European are not substantially lower than those of the median American.",
+        "consensus": {
+          "sa": 2,
+          "a": 17,
+          "u": 11,
+          "d": 8,
+          "sd": 3,
+          "no": 0,
+          "dna": 8,
+          "total": 49,
+          "p_sa": 4.9,
+          "p_a": 41.5,
+          "p_u": 26.8,
+          "p_d": 19.5,
+          "p_sd": 7.3,
+          "p_no": 0.0,
+          "maj": "Mixed"
+        }
+      }
+    ]
+  },
+  {
+    "title": "AI, Work, and Education",
+    "url": "https://kentclarkcenter.org/surveys/ai-work-and-education/",
+    "date": "May 13, 2026",
+    "panel": "US",
+    "questions": [
+      {
+        "label": "Question A",
+        "text": "Use of artificial intelligence over the next ten years will lead to a substantial increase in the unemployment rates in advanced countries.",
+        "consensus": {
+          "sa": 0,
+          "a": 5,
+          "u": 25,
+          "d": 10,
+          "sd": 1,
+          "no": 0,
+          "dna": 4,
+          "total": 45,
+          "p_sa": 0.0,
+          "p_a": 12.2,
+          "p_u": 61.0,
+          "p_d": 24.4,
+          "p_sd": 2.4,
+          "p_no": 0.0,
+          "maj": "Uncertain"
+        }
+      },
+      {
+        "label": "Question B",
+        "text": "Use of artificial intelligence over the next ten years will have a negative impact on the earnings potential of substantial numbers of high-skilled workers in advanced countries.",
+        "consensus": {
+          "sa": 1,
+          "a": 19,
+          "u": 15,
+          "d": 6,
+          "sd": 0,
+          "no": 0,
+          "dna": 4,
+          "total": 45,
+          "p_sa": 2.4,
+          "p_a": 46.3,
+          "p_u": 36.6,
+          "p_d": 14.6,
+          "p_sd": 0.0,
+          "p_no": 0.0,
+          "maj": "Mixed"
+        }
+      },
+      {
+        "label": "Question C",
+        "text": "Use of artificial intelligence over the next ten years will lead to substantially greater uncertainty about the likely returns to investment in education.",
+        "consensus": {
+          "sa": 2,
+          "a": 25,
+          "u": 9,
+          "d": 5,
+          "sd": 0,
+          "no": 0,
+          "dna": 4,
+          "total": 45,
+          "p_sa": 4.9,
+          "p_a": 61.0,
+          "p_u": 22.0,
+          "p_d": 12.2,
+          "p_sd": 0.0,
+          "p_no": 0.0,
+          "maj": "Agree"
+        }
+      }
+    ]
+  },
+  {
+    "title": "Living-Donor Kidney Transplants",
+    "url": "https://kentclarkcenter.org/surveys/living-donor-kidney-transplants/",
+    "date": "May 21, 2026",
+    "panel": "US",
+    "questions": [
+      {
+        "label": "Question A",
+        "text": "There is draft legislation in Congress to increase the supply of human kidneys by encouraging donations to strangers:https://www.congress.gov/bill/119th-congress/house-bill/2687It is summarized here:https://www.hawaiibusiness.com/bipartisan-bill-aims-to-prevent-kidney-deaths-by-compensating-donors/Existing matching markets for kidney exchange have extended the lives of thousands of Americans with kidney disease.",
+        "consensus": {
+          "sa": 22,
+          "a": 16,
+          "u": 1,
+          "d": 1,
+          "sd": 0,
+          "no": 0,
+          "dna": 4,
+          "total": 44,
+          "p_sa": 55.0,
+          "p_a": 40.0,
+          "p_u": 2.5,
+          "p_d": 2.5,
+          "p_sd": 0.0,
+          "p_no": 0.0,
+          "maj": "Agree"
+        }
+      },
+      {
+        "label": "Question B",
+        "text": "A one-time $50,000 tax credit for kidney donation to strangers (with the transplants allocated at zero cost to recipients on the basis of waiting times) would save thousands of lives and pay for itself through a reduction in the cost of providing medical care to people suffering from renal failure.",
+        "consensus": {
+          "sa": 6,
+          "a": 25,
+          "u": 7,
+          "d": 1,
+          "sd": 0,
+          "no": 1,
+          "dna": 4,
+          "total": 44,
+          "p_sa": 15.0,
+          "p_a": 62.5,
+          "p_u": 17.5,
+          "p_d": 2.5,
+          "p_sd": 0.0,
+          "p_no": 2.5,
+          "maj": "Agree"
+        }
+      },
+      {
+        "label": "Question C",
+        "text": "Allowing hospitals to pay people for kidney donation to strangers would be at least as effective at saving lives and more cost effective than a tax credit.",
+        "consensus": {
+          "sa": 3,
+          "a": 13,
+          "u": 15,
+          "d": 6,
+          "sd": 1,
+          "no": 2,
+          "dna": 4,
+          "total": 44,
+          "p_sa": 7.5,
+          "p_a": 32.5,
+          "p_u": 37.5,
+          "p_d": 15.0,
+          "p_sd": 2.5,
+          "p_no": 5.0,
+          "maj": "Mixed"
+        }
+      }
+    ]
   }
 ]
