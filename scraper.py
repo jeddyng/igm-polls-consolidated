@@ -35,15 +35,22 @@ def proxied(url):
 
 
 def get_sitemap_urls():
-    """Fetch all survey URLs from the WordPress sitemap."""
+    """Fetch all survey URLs from the WordPress sitemap.
+
+    Fetched DIRECTLY (never via the proxy): the proxy renders the XML as
+    markdown and truncates long pages, which silently drops the newest
+    surveys (they sit at the bottom of the sitemap, sorted oldest-first).
+    """
     r = requests.get(
-        proxied('https://kentclarkcenter.org/survey-sitemap.xml'),
+        'https://kentclarkcenter.org/survey-sitemap.xml',
         headers=HEADERS, timeout=60,
     )
     r.raise_for_status()
-    return set(re.findall(
-        r'(https://kentclarkcenter\.org/surveys/[A-Za-z0-9_\-]+/?)', r.text
+    urls = set(re.findall(
+        r'https://kentclarkcenter\.org/surveys/[A-Za-z0-9_\-]+/', r.text
     ))
+    urls.discard('https://kentclarkcenter.org/surveys/')  # drop index page
+    return urls
 
 
 def compute_consensus(votes):
@@ -90,6 +97,12 @@ def extract_votes_from_table(table):
     return votes
 
 
+# Matches a real date like "February 26, 2026" anywhere in a string.
+DATE_RE = re.compile(
+    r'((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},\s+\d{4})'
+)
+
+
 def parse_survey(url):
     """Parse a single survey page. Returns dict or None."""
     try:
@@ -103,11 +116,13 @@ def parse_survey(url):
     h1 = soup.find('h1')
     title = h1.get_text(strip=True) if h1 else 'Unknown'
 
-    # Date
+    # Date: require a full "Month DD, YYYY" match, not just a leading
+    # month-like token (which used to grab the page title by mistake).
     date_text = ''
     for t in (soup.find('main') or soup).stripped_strings:
-        if re.match(r'(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)', t):
-            date_text = t.strip()
+        m = DATE_RE.search(t)
+        if m:
+            date_text = m.group(1).strip()
             break
 
     # Panel
@@ -224,6 +239,15 @@ def main():
     # Get all URLs from sitemap
     all_urls = get_sitemap_urls()
     print(f'Sitemap URLs: {len(all_urls)}')
+
+    # Guard: a healthy sitemap has 550+ survey URLs. Anything far below that
+    # means a truncated/failed fetch — abort loudly instead of silently
+    # reporting "up to date" and committing nothing.
+    if len(all_urls) < 500:
+        raise SystemExit(
+            f'Only {len(all_urls)} sitemap URLs found — aborting '
+            f'(likely a truncated or failed fetch).'
+        )
 
     new_urls = all_urls - existing_urls
     if not new_urls:
